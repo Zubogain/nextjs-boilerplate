@@ -1,5 +1,4 @@
 import Document, { Html, Head, Main, NextScript } from "next/document";
-import { resetServerContext } from "react-beautiful-dnd";
 
 import i18nextConfig from '../next-i18next.config';
 
@@ -16,7 +15,6 @@ class AppDocument extends Document {
 
   static async getInitialProps(ctx) {
     const initialProps = await Document.getInitialProps(ctx);
-    resetServerContext();
     return { ...initialProps };
   }
 
