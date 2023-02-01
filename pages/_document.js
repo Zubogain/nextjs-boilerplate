@@ -1,71 +1,40 @@
-import Document, { Head, Main, NextScript } from "next/document";
-import { ServerStyleSheet } from "styled-components";
-import Helmet from "react-helmet";
+import Document, { Html, Head, Main, NextScript } from "next/document";
+import { resetServerContext } from "react-beautiful-dnd";
 
-// from https://github.com/zeit/next.js/edit/canary/examples/with-react-helmet/pages/_document.js
-export default class extends Document {
+import i18nextConfig from '../next-i18next.config';
+
+class AppDocument extends Document {
+  constructor(props) {
+    super(props);
+
+    const { page } = props.__NEXT_DATA__;
+
+    this.state = {
+      page: page.page,
+    };
+  }
+
   static async getInitialProps(ctx) {
-    const sheet = new ServerStyleSheet();
-    const originalRenderPage = ctx.renderPage;
-    try {
-      ctx.renderPage = () =>
-        originalRenderPage({
-          enhanceApp: App => props => sheet.collectStyles(<App {...props} />)
-        });
-
-      const documentProps = await Document.getInitialProps(ctx);
-      return {
-        ...documentProps,
-        helmet: Helmet.renderStatic(),
-        styles: (
-          <>
-            {documentProps.styles}
-            {sheet.getStyleElement()}
-          </>
-        )
-      };
-    } finally {
-      sheet.seal();
-    }
-  }
-
-  get helmetHtmlAttrComponents() {
-    return this.props.helmet.htmlAttributes.toComponent();
-  }
-
-  get helmetBodyAttrComponents() {
-    return this.props.helmet.bodyAttributes.toComponent();
-  }
-
-  get helmetHeadComponents() {
-    return Object.keys(this.props.helmet)
-      .filter(el => el !== "htmlAttributes" && el !== "bodyAttributes")
-      .map(el => this.props.helmet[el].toComponent());
-  }
-
-  get helmetJsx() {
-    let title = "Next.js boilerplate";
-    return (
-      <Helmet>
-        <title>{title}</title>
-      </Helmet>
-    );
+    const initialProps = await Document.getInitialProps(ctx);
+    resetServerContext();
+    return { ...initialProps };
   }
 
   render() {
+    const currentLocale =
+      this.props.__NEXT_DATA__.query.locale ||
+      i18nextConfig.i18n.defaultLocale
+
     return (
-      <html {...this.helmetHtmlAttrComponents}>
-        <Head>
-          {this.helmetJsx}
-          {this.helmetHeadComponents}
-          <meta name="viewport" content="width=device-width, initial-scale=1" />
-          <link rel="icon" type="image/x-icon" href="/static/favicon.ico" />
-        </Head>
-        <body {...this.helmetBodyAttrComponents}>
+      <Html lang={currentLocale}>
+        <Head />
+        <body id="root">
           <Main />
           <NextScript />
         </body>
-      </html>
+      </Html>
     );
   }
 }
+
+export default AppDocument;

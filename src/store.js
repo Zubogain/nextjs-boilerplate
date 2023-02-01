@@ -1,52 +1,31 @@
+import { createStore, applyMiddleware } from "redux";
+import { HYDRATE, createWrapper } from "next-redux-wrapper";
 import thunkMiddleware from "redux-thunk";
-import { createLogger } from "redux-logger";
-import { createStore, applyMiddleware, compose } from "redux";
-import { createStateSyncMiddleware } from "redux-state-sync";
+import combinedReducer from "./reducers";
 
-import config from "config";
-import rootReducer from "./reducers";
-
-function createMiddlewares({ isServer }) {
-  let middlewares = [thunkMiddleware];
-
-  if (config.env === "development" && typeof window !== "undefined") {
-    middlewares.push(
-      createLogger({
-        level: "info",
-        collapsed: true
-      })
-    );
+const bindMiddleware = (middleware) => {
+  if (process.env.NODE_ENV !== "production") {
+    const { composeWithDevTools } = require("redux-devtools-extension");
+    return composeWithDevTools(applyMiddleware(...middleware));
   }
-
-  if (!isServer) {
-    middlewares.push(
-      createStateSyncMiddleware({
-        broadcastChannelOption: {
-          type:
-            typeof BroadcastChannel !== "undefined" ? "native" : "localstorage"
-        }
-      })
-    );
-    console.warn(
-      `Use sync middleware ${
-        typeof BroadcastChannel !== "undefined" ? "native" : "localstorage"
-      }`
-    );
-  }
-
-  return middlewares;
-}
-
-export default (initialState = {}, context) => {
-  let { isServer } = context;
-  let middlewares = createMiddlewares({ isServer });
-  let state = { ...initialState };
-
-  const store = createStore(
-    rootReducer,
-    state,
-    compose(applyMiddleware(...middlewares))
-  );
-
-  return store;
+  return applyMiddleware(...middleware);
 };
+
+const reducer = (state, action) => {
+  if (action.type === HYDRATE) {
+    const nextState = {
+      ...state,
+      ...action.payload,
+    };
+    return nextState;
+  } else {
+    return combinedReducer(state, action);
+  }
+};
+
+const initStore = () => {
+  const middlewares = [thunkMiddleware];
+  return createStore(reducer, bindMiddleware(middlewares));
+};
+
+export const wrapper = createWrapper(initStore);
