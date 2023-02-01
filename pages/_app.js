@@ -1,35 +1,34 @@
-import withRedux from "next-redux-wrapper";
 import { withRouter } from "next/router";
-import { Provider } from "react-redux";
-import App, { Container } from "next/app";
-import AppMain from "App";
-import createStore from "store.js";
-import "../src/assets/scss/main.scss";
+import Head from "next/head";
 
-class MyApp extends App {
-  static async getInitialProps({ Component, ctx }) {
-    let pageProps = {};
-    const isServer = !!ctx.req;
+import { appWithTranslation } from 'next-i18next';
 
-    if (Component.getInitialProps) {
-      pageProps = { ...(await Component.getInitialProps(ctx)), ...pageProps };
-    }
+import AppMain from "@/App";
+import "@Public/scss/style.scss";
 
-    return { pageProps };
-  }
+import { wrapper } from "../src/store";
+import { AnimatePresence } from "framer-motion";
 
-  render() {
-    const { Component, pageProps, store, router } = this.props;
-    return (
-      <Container>
-        <Provider store={store}>
-          <AppMain router={router}>
-            <Component {...pageProps} />
-          </AppMain>
-        </Provider>
-      </Container>
-    );
-  }
-}
+const MyApp = ({ Component, pageProps, router, store }) => {
 
-export default withRedux(createStore)(withRouter(MyApp));
+  return (
+    <>
+      <Head>
+        <meta httpEquiv="Content-type" content="text/html;charset=UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      </Head>
+      <AppMain router={router}>
+        <AnimatePresence
+          initial={false}
+          mode="wait"
+          onExitComplete={() => window.scrollTo(0, 0)}
+        >
+          <Component {...pageProps} store={store} />
+        </AnimatePresence>
+      </AppMain>
+    </>
+  );
+};
+
+export default appWithTranslation(wrapper.withRedux(withRouter(MyApp)));
+
