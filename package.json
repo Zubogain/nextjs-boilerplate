@@ -50,7 +50,7 @@
     "babel-core": "7.0.0-bridge.0",
     "babel-plugin-inline-dotenv": "^1.1.2",
     "babel-plugin-module-resolver": "^3.2.0",
-    "imagemin-svgo": "^7.0.0",
+    "imagemin-svgo": "^7.1.0",
     "next-compose-plugins": "^2.2.0",
     "next-images": "^1.1.2",
     "next-optimized-images": "^2.5.4",
