@@ -14,7 +14,7 @@
     "bootstrap": "^4.6.2",
     "framer-motion": "^8.5.2",
     "i18next": "^22.4.9",
-    "next": "13.1.5",
+    "next": "13.5.4",
     "next-i18next": "^13.0.3",
     "next-language-detector": "^1.0.2",
     "next-redux-wrapper": "^8.1.0",
